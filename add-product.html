@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Product | SME Inventory</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+    --navy: #243B55;
+    --blue: #315b89;
+    --background: #f4f7fb;
+    --text: #243447;
+    --muted: #64748b;
+    --border: #e8edf4;
+    --white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    visibility: hidden;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background: var(--navy);
+    padding: 22px 14px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: width 0.25s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 12px 30px;
+    color: white;
+    font-size: 19px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: var(--blue);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.nav-heading {
+    color: #9fb1c6;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding: 0 13px;
+    margin-bottom: 12px;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 47px;
+    padding: 0 14px;
+    color: #dbe5f0;
+    text-decoration: none;
+    border-radius: 9px;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.nav-item:hover {
+    background: #31516f;
+    transform: translateX(2px);
+}
+
+.nav-item.active {
+    background: var(--blue);
+    color: white;
+    font-weight: bold;
+}
+
+.nav-icon {
+    width: 23px;
+    min-width: 23px;
+    text-align: center;
+    font-size: 19px;
+}
+
+.product-nav-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-toggle {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 17px;
+    transition: transform 0.2s;
+}
+
+.product-nav-group.open .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.product-submenu {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 7px 0 7px 42px;
+}
+
+.product-nav-group.open .product-submenu {
+    display: flex;
+}
+
+.product-submenu a {
+    color: #b9c9da;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 10px 9px;
+    border-radius: 7px;
+    transition: background 0.2s;
+}
+
+.product-submenu a:hover {
+    background: #31516f;
+    color: white;
+}
+
+.product-submenu a.active {
+    background: #315b89;
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 15px;
+}
+
+.workspace-link {
+    margin-bottom: 7px;
+}
+
+.sidebar.collapsed {
+    width: 78px;
+}
+
+.sidebar.collapsed .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-heading {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar.collapsed .nav-item:hover {
+    transform: none;
+}
+
+.sidebar.collapsed .product-submenu,
+.sidebar.collapsed .submenu-arrow {
+    display: none;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 28px 34px;
+    min-height: 100vh;
+    transition: margin-left 0.25s ease;
+}
+
+.main-content.expanded {
+    margin-left: 78px;
+}
+
+.top-header {
+    background: white;
+    min-height: 70px;
+    padding: 12px 22px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    box-shadow: 0 3px 12px rgba(15,23,42,0.03);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.toggle-button {
+    width: 39px;
+    height: 39px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--navy);
+}
+
+.toggle-button:hover {
+    background: #edf3fa;
+}
+
+.top-header h2 {
+    color: var(--navy);
+    font-size: 17px;
+    margin: 0;
+}
+
+.header-right {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.page-heading {
+    margin-bottom: 25px;
+}
+
+.page-heading h1 {
+    color: var(--navy);
+    font-size: 29px;
+    margin: 0 0 9px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.content-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.8fr);
+    gap: 22px;
+    align-items: start;
+    max-width: 1050px;
+}
+
+.form-card,
+.info-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 27px;
+    box-shadow: 0 3px 12px rgba(15,23,42,0.04);
+}
+
+.card-heading {
+    font-size: 17px;
+    color: var(--navy);
+    font-weight: bold;
+    margin: 0 0 7px;
+}
+
+.card-description {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 25px;
+    line-height: 1.5;
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.step-number {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.step.active {
+    color: var(--navy);
+}
+
+.step.active .step-number {
+    background: var(--navy);
+    color: white;
+}
+
+.step.completed {
+    color: #15803d;
+}
+
+.step.completed .step-number {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.step-line {
+    height: 2px;
+    flex: 1;
+    background: #e2e8f0;
+}
+
+.form-group {
+    margin-bottom: 21px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 9px;
+    color: #334155;
+}
+
+.required {
+    color: #dc2626;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(49,91,137,0.12);
+}
+
+input::placeholder {
+    color: #94a3b8;
+}
+
+input[readonly] {
+    background: #f1f5f9;
+    color: #475569;
+    cursor: not-allowed;
+}
+
+.field-hint {
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+    margin-top: 7px;
+    line-height: 1.5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.primary-button {
+    flex: 1;
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.primary-button:hover {
+    background: var(--blue);
+    transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.secondary-button {
+    padding: 14px 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    background: white;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.secondary-button:hover {
+    background: #f1f5f9;
+}
+
+#message {
+    margin-top: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.category-empty {
+    display: none;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 9px;
+    padding: 14px;
+    margin-bottom: 20px;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.category-empty a {
+    color: #1d4ed8;
+    font-weight: bold;
+}
+
+.info-card {
+    background: linear-gradient(145deg, #ffffff, #f8fbff);
+}
+
+.info-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf1f8;
+    border-radius: 12px;
+    font-size: 24px;
+    margin-bottom: 18px;
+}
+
+.info-card h3 {
+    color: var(--navy);
+    font-size: 16px;
+    margin: 0 0 12px;
+}
+
+.info-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.info-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 22px 0;
+}
+
+.info-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.info-list li {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 13px;
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+.info-check {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.info-note {
+    margin-top: 18px !important;
+    padding: 12px;
+    background: #edf4fb;
+    border-radius: 8px;
+    color: #315b89 !important;
+    font-size: 12px !important;
+}
+
+@media (max-width: 900px) {
+    .content-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 78px;
+    }
+
+    .sidebar:not(.collapsed) {
+        width: 250px;
+    }
+
+    .sidebar .brand {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar:not(.collapsed) .brand {
+        justify-content: flex-start;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .sidebar.collapsed .brand-name,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-heading {
+        display: none;
+    }
+
+    .sidebar.collapsed .nav-item {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .main-content,
+    .main-content.expanded {
+        margin-left: 78px;
+        padding: 17px 13px;
+    }
+
+    .top-header {
+        padding: 12px;
+        margin-bottom: 22px;
+    }
+
+    .top-header h2 {
+        font-size: 14px;
+    }
+
+    .header-right {
+        display: none;
+    }
+
+    .page-heading h1 {
+        font-size: 23px;
+    }
+
+    .form-card,
+    .info-card {
+        padding: 21px;
+    }
+
+    .step {
+        font-size: 10px;
+        gap: 5px;
+    }
+
+    .step-number {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand" id="brandToggle" title="Collapse or expand sidebar">
+        <div class="brand-icon">📦</div>
+        <span class="brand-name">SME Inventory</span>
+    </div>
+
+    <div class="nav-heading">MAIN MENU</div>
+
+    <nav class="nav-menu">
+
+        <a href="home.html" class="nav-item" title="Home">
+            <span class="nav-icon">⌂</span>
+            <span class="nav-label">Home</span>
+        </a>
+
+        <div class="product-nav-group open" id="productNavGroup">
+
+            <button type="button"
+                    class="nav-item product-toggle"
+                    id="productToggle"
+                    aria-expanded="true"
+                    title="Products">
+
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">Products</span>
+                <span class="submenu-arrow">⌄</span>
+
+            </button>
+
+            <div class="product-submenu">
+                <a href="products.html">Product Management</a>
+                <a href="add-product.html" class="active">Add Product</a>
+                <a href="product-categories.html">Product Categories</a>
+                <a href="product-movement-history.html">Product Movement History</a>
+            </div>
+
+        </div>
+
+        <a href="stock.html" class="nav-item" title="Stock">
+            <span class="nav-icon">▤</span>
+            <span class="nav-label">Stock</span>
+        </a>
+
+        <a href="reports.html" class="nav-item" title="Reports">
+            <span class="nav-icon">▥</span>
+            <span class="nav-label">Reports</span>
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+        <a href="settings.html" class="nav-item workspace-link" title="Workspace">
+            <span class="nav-icon">▦</span>
+            <span class="nav-label">Workspace</span>
+        </a>
+    </div>
+
+</aside>
+
+<main class="main-content" id="mainContent">
+
+    <header class="top-header">
+        <div class="header-left">
+            <button class="toggle-button"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                    title="Toggle sidebar">☰</button>
+            <h2>Add Product</h2>
+        </div>
+        <div class="header-right" id="currentDate"></div>
+    </header>
+
+    <section class="page-heading">
+        <h1>Add New Product</h1>
+        <p>Register a new product in your business inventory in two simple steps.</p>
+    </section>
+
+    <section class="content-layout">
+
+        <div class="form-card">
+
+            <div class="step-indicator">
+
+                <div class="step active" id="stepOneIndicator">
+                    <span class="step-number">1</span>
+                    <span>Product Information</span>
+                </div>
+
+                <div class="step-line"></div>
+
+                <div class="step" id="stepTwoIndicator">
+                    <span class="step-number">2</span>
+                    <span>Product Category</span>
+                </div>
+
+            </div>
+
+            <form id="productForm" novalidate>
+
+                <section id="productInformationStep">
+
+                    <h2 class="card-heading">Product Information</h2>
+
+                    <p class="card-description">
+                        Enter the basic information and starting stock quantity
+                        for your new product.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="productId">
+                            Product ID <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="productId"
+                               placeholder="e.g. BK-001"
+                               maxlength="30"
+                               required>
+
+                        <span class="field-hint">
+                            Enter a unique identification code for this product.
+                            Example: BK-001, EL-002, FD-003.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productName">
+                            Product Name <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="productName"
+                               placeholder="e.g. Wireless Mouse"
+                               maxlength="100"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productPrice">
+                            Product Price (RM) <span class="required">*</span>
+                        </label>
+
+                        <input type="number"
+                               id="productPrice"
+                               placeholder="e.g. 49.90"
+                               min="0"
+                               step="0.01"
+                               required>
+
+                        <span class="field-hint">
+                            Enter the selling price of one unit.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantity">
+                            Initial Quantity <span class="required">*</span>
+                        </label>
+
+                        <input type="number"
+                               id="quantity"
+                               placeholder="e.g. 100"
+                               min="0"
+                               step="1"
+                               required>
+
+                        <span class="field-hint">
+                            Enter the number of units currently available.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minStockLevel">
+                            Minimum Stock Level <span class="required">*</span>
+                        </label>
+
+                        <input type="number"
+                               id="minStockLevel"
+                               placeholder="Enter your minimum stock level"
+                               min="0"
+                               step="1"
+                               required>
+
+                        <span class="field-hint">
+                            A low-stock alert will appear when available quantity
+                            reaches this number or falls below it.
+                        </span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="nextButton" class="primary-button">
+                            Next →
+                        </button>
+
+                        <a href="products.html" class="secondary-button">Cancel</a>
+                    </div>
+
+                </section>
+
+                <section id="productCategoryStep" hidden>
+
+                    <h2 class="card-heading">Product Category</h2>
+
+                    <p class="card-description">
+                        Select the category that belongs to this product.
+                        The Category ID will be filled in automatically.
+                    </p>
+
+                    <div class="category-empty" id="categoryEmpty">
+                        No product categories have been created yet.
+
+                        Please create a category first from the
+                        <a href="product-categories.html">Product Categories page</a>.
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productCategory">
+                            Category Name <span class="required">*</span>
+                        </label>
+
+                        <select id="productCategory" required>
+                            <option value="">Select a product category</option>
+                        </select>
+
+                        <span class="field-hint">
+                            Choose from the categories you have already created.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryCodeDisplay">Category ID</label>
+
+                        <input type="text"
+                               id="categoryCodeDisplay"
+                               placeholder="Category ID will appear here"
+                               readonly>
+
+                        <span class="field-hint">
+                            This ID comes from the selected category and cannot
+                            be changed here.
+                        </span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="backButton" class="secondary-button">
+                            ← Back
+                        </button>
+
+                        <button type="submit" id="saveButton" class="primary-button">
+                            Save Product
+                        </button>
+                    </div>
+
+                </section>
+
+                <p id="message" role="status" aria-live="polite"></p>
+
+            </form>
+
+        </div>
+
+        <aside class="info-card">
+
+            <div class="info-icon">📦</div>
+
+            <h3>Product Registration</h3>
+
+            <p>
+                Adding a product creates a new inventory record.
+                You can manage its price, stock quantity and sales
+                from the Products section.
+            </p>
+
+            <div class="info-divider"></div>
+
+            <h3>Before You Save</h3>
+
+            <ul class="info-list">
+                <li><span class="info-check">✓</span><span>Assign a unique Product ID.</span></li>
+                <li><span class="info-check">✓</span><span>Enter a clear product name and correct selling price.</span></li>
+                <li><span class="info-check">✓</span><span>Enter the actual starting stock quantity.</span></li>
+                <li><span class="info-check">✓</span><span>Choose your own minimum stock level.</span></li>
+                <li><span class="info-check">✓</span><span>Select the correct product category.</span></li>
+                <li><span class="info-check">✓</span><span>Initial stock activity will be recorded in the history.</span></li>
+            </ul>
+
+            <p class="info-note">
+                Your product information and category will be saved together
+                in your inventory.
+            </p>
+
+        </aside>
+
+    </section>
+
+</main>
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged,
+    signOut,
+    reload
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    getDoc,
+    doc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+/* GLOBAL VARIABLES */
+
+let currentUser = null;
+let availableCategories = [];
+
+const productForm = document.getElementById("productForm");
+const saveButton = document.getElementById("saveButton");
+const nextButton = document.getElementById("nextButton");
+const backButton = document.getElementById("backButton");
+const message = document.getElementById("message");
+
+const productInformationStep =
+    document.getElementById("productInformationStep");
+
+const productCategoryStep =
+    document.getElementById("productCategoryStep");
+
+const productCategory =
+    document.getElementById("productCategory");
+
+const categoryCodeDisplay =
+    document.getElementById("categoryCodeDisplay");
+
+const categoryEmpty =
+    document.getElementById("categoryEmpty");
+
+const sidebar = document.getElementById("sidebar");
+const mainContent = document.getElementById("mainContent");
+const productToggle = document.getElementById("productToggle");
+const productNavGroup = document.getElementById("productNavGroup");
+
+/* SIDEBAR STATE */
+
+function applySidebarState(collapsed) {
+
+    sidebar.classList.toggle("collapsed", collapsed);
+    mainContent.classList.toggle("expanded", collapsed);
+
+    if (collapsed) {
+        productNavGroup.classList.remove("open");
+        productToggle.setAttribute("aria-expanded", "false");
+    }
+
+    try {
+        localStorage.setItem("smeSidebarCollapsed", String(collapsed));
+    } catch (error) {
+        console.warn("Could not save sidebar preference:", error);
+    }
+}
+
+try {
+
+    const savedSidebarState =
+        localStorage.getItem("smeSidebarCollapsed");
+
+    if (savedSidebarState === "true") {
+        applySidebarState(true);
+    } else if (savedSidebarState === "false") {
+        applySidebarState(false);
+    } else if (window.innerWidth <= 700) {
+        applySidebarState(true);
+    }
+
+} catch (error) {
+    if (window.innerWidth <= 700) {
+        applySidebarState(true);
+    }
+}
+
+/* SIDEBAR BUTTON */
+
+document.getElementById("sidebarToggle").addEventListener("click", () => {
+    applySidebarState(!sidebar.classList.contains("collapsed"));
+});
+
+/* BRAND CLICK */
+
+document.getElementById("brandToggle").addEventListener("click", () => {
+    applySidebarState(!sidebar.classList.contains("collapsed"));
+});
+
+/* PRODUCTS SUBMENU */
+
+productToggle.addEventListener("click", () => {
+
+    if (sidebar.classList.contains("collapsed")) {
+        applySidebarState(false);
+    }
+
+    const isOpen = productNavGroup.classList.toggle("open");
+
+    productToggle.setAttribute("aria-expanded", String(isOpen));
+
+});
+
+/* CURRENT DATE */
+
+document.getElementById("currentDate").textContent =
+    new Date().toLocaleDateString("en-MY", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+/* DISPLAY MESSAGE */
+
+function showMessage(text, color = "#64748b") {
+    message.textContent = text;
+    message.style.color = color;
+}
+
+/* STEP INDICATOR */
+
+function updateStepIndicator(step) {
+
+    const stepOne = document.getElementById("stepOneIndicator");
+    const stepTwo = document.getElementById("stepTwoIndicator");
+
+    if (step === 1) {
+
+        stepOne.classList.add("active");
+        stepOne.classList.remove("completed");
+        stepTwo.classList.remove("active");
+
+    } else {
+
+        stepOne.classList.remove("active");
+        stepOne.classList.add("completed");
+        stepTwo.classList.add("active");
+
+    }
+}
+
+/* VALIDATE STEP 1 */
+
+function validateProductInformation() {
+
+    const productId =
+        document.getElementById("productId").value.trim();
+
+    const name =
+        document.getElementById("productName").value.trim();
+
+    const priceInput =
+        document.getElementById("productPrice").value;
+
+    const quantityInput =
+        document.getElementById("quantity").value;
+
+    const minStockInput =
+        document.getElementById("minStockLevel").value;
+
+    const price = Number(priceInput);
+    const quantity = Number(quantityInput);
+    const minStockLevel = Number(minStockInput);
+
+    if (!productId) {
+        showMessage("Product ID is required.", "#dc2626");
+        document.getElementById("productId").focus();
+        return false;
+    }
+
+    if (!/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/i.test(productId)) {
+        showMessage(
+            "Use only letters, numbers and hyphens for Product ID. Example: BK-001.",
+            "#dc2626"
+        );
+        document.getElementById("productId").focus();
+        return false;
+    }
+
+    if (!name) {
+        showMessage("Product name is required.", "#dc2626");
+        document.getElementById("productName").focus();
+        return false;
+    }
+
+    if (
+        priceInput.trim() === "" ||
+        !Number.isFinite(price) ||
+        price < 0
+    ) {
+        showMessage("Please enter a valid product price.", "#dc2626");
+        document.getElementById("productPrice").focus();
+        return false;
+    }
+
+    if (
+        quantityInput.trim() === "" ||
+        !Number.isInteger(quantity) ||
+        quantity < 0
+    ) {
+        showMessage(
+            "Please enter a valid whole-number initial quantity.",
+            "#dc2626"
+        );
+        document.getElementById("quantity").focus();
+        return false;
+    }
+
+    if (
+        minStockInput.trim() === "" ||
+        !Number.isInteger(minStockLevel) ||
+        minStockLevel < 0
+    ) {
+        showMessage(
+            "Please enter a valid whole-number minimum stock level.",
+            "#dc2626"
+        );
+        document.getElementById("minStockLevel").focus();
+        return false;
+    }
+
+    return true;
+}
+
+/* LOAD CATEGORIES FROM FIRESTORE */
+
+async function loadCategories() {
+
+    productCategory.innerHTML = `
+        <option value="">Select a product category</option>
+    `;
+
+    categoryCodeDisplay.value = "";
+    availableCategories = [];
+
+    const categoriesRef = collection(
+        db,
+        "users",
+        currentUser.uid,
+        "categories"
+    );
+
+    const snapshot = await getDocs(categoriesRef);
+
+    availableCategories = snapshot.docs.map(categoryDocument => {
+
+        const category = categoryDocument.data();
+
+        return {
+            id: categoryDocument.id,
+            categoryCode: String(category.categoryCode || "").trim(),
+            name: String(category.name || "").trim()
+        };
+
+    }).filter(category => category.name !== "");
+
+    availableCategories.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    if (availableCategories.length === 0) {
+
+        categoryEmpty.style.display = "block";
+        productCategory.disabled = true;
+        saveButton.disabled = true;
+
+        return;
+
+    }
+
+    categoryEmpty.style.display = "none";
+    productCategory.disabled = false;
+    saveButton.disabled = false;
+
+    availableCategories.forEach(category => {
+
+        const option = document.createElement("option");
+
+        option.value = category.id;
+        option.textContent = category.name;
+
+        productCategory.appendChild(option);
+
+    });
+
+}
+
+/* DISPLAY CATEGORY ID WHEN SELECTED */
+
+productCategory.addEventListener("change", () => {
+
+    const selectedCategory = availableCategories.find(category =>
+        category.id === productCategory.value
+    );
+
+    categoryCodeDisplay.value = selectedCategory
+        ? selectedCategory.categoryCode
+        : "";
+
+});
+
+/* NEXT BUTTON */
+
+nextButton.addEventListener("click", async () => {
+
+    if (!currentUser) {
+        showMessage("Please wait for login verification.", "#dc2626");
+        return;
+    }
+
+    if (!validateProductInformation()) {
+        return;
+    }
+
+    nextButton.disabled = true;
+    nextButton.textContent = "Loading Categories...";
+
+    showMessage("");
+
+    try {
+
+        await loadCategories();
+
+        productInformationStep.hidden = true;
+        productCategoryStep.hidden = false;
+
+        updateStepIndicator(2);
+
+        if (availableCategories.length === 0) {
+            showMessage(
+                "Create a category before adding a product.",
+                "#b45309"
+            );
+        } else {
+            showMessage("");
+        }
+
+    } catch (error) {
+
+        console.error("Error loading categories:", error);
+
+        showMessage(
+            "Could not load product categories. Please try again.",
+            "#dc2626"
+        );
+
+    } finally {
+
+        nextButton.disabled = false;
+        nextButton.textContent = "Next →";
+
+    }
+
+});
+
+/* BACK BUTTON */
+
+backButton.addEventListener("click", () => {
+
+    productCategoryStep.hidden = true;
+    productInformationStep.hidden = false;
+
+    updateStepIndicator(1);
+    showMessage("");
+
+});
+
+/* AUTHENTICATION AND EMAIL VERIFICATION */
+
+onAuthStateChanged(auth, async user => {
+
+    if (!user) {
+        window.location.replace("loging.html");
+        return;
+    }
+
+    try {
+
+        await reload(user);
+
+        if (!user.emailVerified) {
+            await signOut(auth);
+            window.location.replace("loging.html");
+            return;
+        }
+
+        currentUser = user;
+        document.body.style.visibility = "visible";
+
+    } catch (error) {
+
+        console.error("Authentication error:", error);
+
+        await signOut(auth);
+        window.location.replace("loging.html");
+
+    }
+
+});
+
+/* CHECK WHETHER PRODUCT ID ALREADY EXISTS */
+
+async function productIdExists(productId) {
+
+    const productsRef = collection(
+        db,
+        "users",
+        currentUser.uid,
+        "products"
+    );
+
+    const snapshot = await getDocs(productsRef);
+
+    const enteredId = productId.trim().toUpperCase();
+
+    return snapshot.docs.some(productDocument => {
+
+        const product = productDocument.data();
+
+        const existingId = String(
+            product.productId || productDocument.id
+        ).trim().toUpperCase();
+
+        return existingId === enteredId;
+
+    });
+
+}
+
+/* SAVE PRODUCT */
+
+productForm.addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        showMessage("Please wait for login verification.", "#dc2626");
+        return;
+    }
+
+    if (!validateProductInformation()) {
+
+        productCategoryStep.hidden = true;
+        productInformationStep.hidden = false;
+
+        updateStepIndicator(1);
+        return;
+
+    }
+
+    /* CAPTURE THE SELECTED CATEGORY BEFORE ANY DATABASE REQUEST */
+
+    const selectedCategoryId = productCategory.value;
+
+    const selectedCategory = availableCategories.find(category =>
+        category.id === selectedCategoryId
+    );
+
+    if (!selectedCategoryId || !selectedCategory) {
+        showMessage("Please select a product category.", "#dc2626");
+        productCategory.focus();
+        return;
+    }
+
+    if (!selectedCategory.categoryCode) {
+        showMessage(
+            "This category does not have a Category ID. Please update it in Product Categories first.",
+            "#dc2626"
+        );
+        return;
+    }
+
+    const productId = document
+        .getElementById("productId")
+        .value.trim().toUpperCase();
+
+    const name = document
+        .getElementById("productName")
+        .value.trim();
+
+    const price = Number(
+        document.getElementById("productPrice").value
+    );
+
+    const quantity = Number(
+        document.getElementById("quantity").value
+    );
+
+    const minStockLevel = Number(
+        document.getElementById("minStockLevel").value
+    );
+
+    saveButton.disabled = true;
+    backButton.disabled = true;
+    saveButton.textContent = "Checking Product ID...";
+
+    showMessage("");
+
+    try {
+
+        /* CHECK DUPLICATE PRODUCT ID */
+
+        const duplicate = await productIdExists(productId);
+
+        if (duplicate) {
+
+            showMessage(
+                "This Product ID already exists. Please enter a different ID.",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+        /* VERIFY CATEGORY DIRECTLY WITHOUT RELOADING THE DROPDOWN */
+
+        saveButton.textContent = "Verifying Category...";
+
+        const categoryReference = doc(
+            db,
+            "users",
+            currentUser.uid,
+            "categories",
+            selectedCategoryId
+        );
+
+        const categorySnapshot = await getDoc(categoryReference);
+
+        if (!categorySnapshot.exists()) {
+
+            showMessage(
+                "This category no longer exists. Please go back and select another category.",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+        const categoryData = categorySnapshot.data();
+
+        const verifiedCategory = {
+            id: categorySnapshot.id,
+            categoryCode: String(categoryData.categoryCode || "").trim(),
+            name: String(categoryData.name || "").trim()
+        };
+
+        if (!verifiedCategory.name || !verifiedCategory.categoryCode) {
+
+            showMessage(
+                "The selected category is missing its Category ID or name. Please update it in Product Categories.",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+        /* SAVE PRODUCT */
+
+        saveButton.textContent = "Saving Product...";
+
+        const productData = {
+
+            productId: productId,
+
+            name: name,
+
+            price: price,
+
+            quantity: quantity,
+
+            quantityAdded: quantity,
+
+            quantitySold: 0,
+
+            minStockLevel: minStockLevel,
+
+            categoryId: verifiedCategory.id,
+
+            categoryCode: verifiedCategory.categoryCode,
+
+            categoryName: verifiedCategory.name,
+
+            createdAt: serverTimestamp(),
+
+            createdBy: currentUser.uid,
+
+            createdByEmail: currentUser.email || ""
+
+        };
+
+        await addDoc(
+            collection(
+                db,
+                "users",
+                currentUser.uid,
+                "products"
+            ),
+            productData
+        );
+
+        /* RECORD INITIAL STOCK MOVEMENT */
+
+        let historySaved = true;
+
+        try {
+
+            await addDoc(
+                collection(
+                    db,
+                    "users",
+                    currentUser.uid,
+                    "stockMovements"
+                ),
+                {
+
+                    productName: name,
+
+                    productId: productId,
+
+                    action: "Product Added",
+
+                    quantityChange: quantity,
+
+                    previousQuantity: 0,
+
+                    newQuantity: quantity,
+
+                    details:
+                        "New product added to inventory. Category: " +
+                        verifiedCategory.name,
+
+                    performedBy: currentUser.uid,
+
+                    performedByEmail: currentUser.email || "",
+
+                    createdAt: serverTimestamp()
+
+                }
+            );
+
+        } catch (historyError) {
+
+            historySaved = false;
+
+            console.error(
+                "Product saved, but history could not be recorded:",
+                historyError
+            );
+
+        }
+
+        /* SHOW SUCCESS */
+
+        productForm.reset();
+
+        categoryCodeDisplay.value = "";
+
+        productCategory.innerHTML = `
+            <option value="">Select a product category</option>
+        `;
+
+        if (historySaved) {
+
+            showMessage(
+                "Product saved successfully! Stock movement history recorded.",
+                "#15803d"
+            );
+
+        } else {
+
+            showMessage(
+                "Product saved, but activity history could not be recorded. Please check Firestore rules.",
+                "#b45309"
+            );
+
+        }
+
+        saveButton.textContent = "Saved Successfully";
+
+        setTimeout(() => {
+            window.location.href = "products.html";
+        }, 2000);
+
+    } catch (error) {
+
+        console.error("Error saving product:", error);
+
+        showMessage(
+            "Could not save product: " + error.message,
+            "#dc2626"
+        );
+
+    } finally {
+
+        if (saveButton.textContent !== "Saved Successfully") {
+            saveButton.disabled = false;
+            backButton.disabled = false;
+            saveButton.textContent = "Save Product";
+        }
+
+    }
+
+});
+
+</script>
+
+<script type="module" src="ai-assistant.js"></script>
+
+</body>
+</html>

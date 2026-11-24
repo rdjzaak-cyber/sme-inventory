@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Management | SME Inventory</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+    --navy: #243B55;
+    --blue: #315b89;
+    --background: #f4f7fb;
+    --text: #243447;
+    --muted: #64748b;
+    --border: #e8edf4;
+    --white: #ffffff;
+    --green: #15803d;
+    --red: #b91c1c;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    visibility: hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background: var(--navy);
+    padding: 22px 14px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: width 0.25s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 12px 30px;
+    color: white;
+    font-size: 19px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: var(--blue);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.nav-heading {
+    color: #9fb1c6;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding: 0 13px;
+    margin-bottom: 12px;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 47px;
+    padding: 0 14px;
+    color: #dbe5f0;
+    text-decoration: none;
+    border-radius: 9px;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.nav-item:hover {
+    background: #31516f;
+    transform: translateX(2px);
+}
+
+.nav-item.active {
+    background: var(--blue);
+    color: white;
+    font-weight: bold;
+}
+
+.nav-icon {
+    width: 23px;
+    min-width: 23px;
+    text-align: center;
+    font-size: 19px;
+}
+
+.product-nav-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-toggle {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 17px;
+    transition: transform 0.2s;
+}
+
+.product-nav-group.open .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.product-submenu {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 7px 0 7px 42px;
+}
+
+.product-nav-group.open .product-submenu {
+    display: flex;
+}
+
+.product-submenu a {
+    color: #b9c9da;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 10px 9px;
+    border-radius: 7px;
+    transition: background 0.2s;
+}
+
+.product-submenu a:hover {
+    background: #31516f;
+    color: white;
+}
+
+.product-submenu a.active {
+    background: #315b89;
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 15px;
+}
+
+.workspace-link {
+    margin-bottom: 7px;
+}
+
+.sidebar.collapsed {
+    width: 78px;
+}
+
+.sidebar.collapsed .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-heading {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar.collapsed .nav-item:hover {
+    transform: none;
+}
+
+.sidebar.collapsed .product-submenu,
+.sidebar.collapsed .submenu-arrow {
+    display: none;
+}
+
+/* MAIN CONTENT */
+
+.main-content {
+    margin-left: 250px;
+    padding: 28px 34px;
+    transition: margin-left 0.25s ease;
+}
+
+.main-content.expanded {
+    margin-left: 78px;
+}
+
+.top-header {
+    background: white;
+    min-height: 70px;
+    padding: 12px 22px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    box-shadow: 0 3px 12px rgba(15,23,42,0.03);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.toggle-button {
+    width: 39px;
+    height: 39px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--navy);
+}
+
+.toggle-button:hover {
+    background: #edf3fa;
+}
+
+.top-header h2 {
+    color: var(--navy);
+    font-size: 17px;
+    margin: 0;
+}
+
+.header-right {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.page-heading {
+    margin-bottom: 25px;
+}
+
+.page-heading h1 {
+    color: var(--navy);
+    font-size: 29px;
+    margin: 0 0 9px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* TABLE */
+
+.table-container {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    overflow-x: auto;
+    box-shadow: 0 3px 12px rgba(15,23,42,0.04);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1120px;
+}
+
+th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+th {
+    background: #edf3fa;
+    color: var(--navy);
+    font-size: 13px;
+}
+
+td {
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+.manage-button {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 10px 17px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.manage-button:hover {
+    background: var(--blue);
+}
+
+.category-badge {
+    display: inline-block;
+    background: #edf3fa;
+    color: var(--navy);
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 35px;
+    color: var(--muted);
+}
+
+/* NOTIFICATIONS */
+
+.notification {
+    display: none;
+    padding: 13px 16px;
+    border-radius: 9px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.notification.show {
+    display: block;
+}
+
+.notification.success {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.notification.error {
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+.notification.info {
+    color: #1e40af;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+}
+
+/* MODAL */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.55);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.manage-modal {
+    background: white;
+    width: 100%;
+    max-width: 490px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    animation: appear 0.18s ease-out;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--navy);
+    font-size: 20px;
+}
+
+.close-button {
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.close-button:hover {
+    background: #e2e8f0;
+}
+
+.modal-product-info {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 12px 0 22px;
+}
+
+.modal-option {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.2s;
+}
+
+.modal-option:hover {
+    background: #f1f5f9;
+}
+
+.modal-option.delete-option {
+    color: var(--red);
+    border-color: #fecaca;
+}
+
+.modal-option.delete-option:hover {
+    background: #fef2f2;
+}
+
+/* FORMS */
+
+.modal-view {
+    display: none;
+}
+
+.modal-view.active {
+    display: block;
+}
+
+.form-description {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 12px 0 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid #d8e0ea;
+    border-radius: 8px;
+    background: white;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(49,91,137,0.10);
+}
+
+.form-group input[readonly] {
+    background: #f1f5f9;
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+.form-hint {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 6px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.action-button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 17px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.action-button.primary {
+    background: var(--navy);
+    color: white;
+    flex: 1;
+}
+
+.action-button.primary:hover {
+    background: var(--blue);
+}
+
+.action-button.secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.action-button.secondary:hover {
+    background: #e2e8f0;
+}
+
+.action-button.danger {
+    background: #b91c1c;
+    color: white;
+    flex: 1;
+}
+
+.action-button.danger:hover {
+    background: #991b1b;
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.delete-warning {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    border-radius: 9px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 18px 0;
+}
+
+.stock-summary {
+    background: #f1f5f9;
+    border-radius: 9px;
+    padding: 13px 15px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.stock-summary strong {
+    color: var(--navy);
+}
+
+.category-empty-note {
+    display: none;
+    padding: 11px 13px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    color: #9a3412;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+
+.category-empty-note.show {
+    display: block;
+}
+
+.category-empty-note a {
+    color: #1d4ed8;
+    font-weight: bold;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 78px;
+    }
+
+    .sidebar:not(.collapsed) {
+        width: 250px;
+    }
+
+    .sidebar .brand {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar:not(.collapsed) .brand {
+        justify-content: flex-start;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .sidebar.collapsed .brand-name,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-heading {
+        display: none;
+    }
+
+    .sidebar.collapsed .nav-item {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .main-content,
+    .main-content.expanded {
+        margin-left: 78px;
+        padding: 17px 13px;
+    }
+
+    .top-header {
+        padding: 12px;
+        margin-bottom: 22px;
+    }
+
+    .top-header h2 {
+        font-size: 14px;
+    }
+
+    .header-right {
+        display: none;
+    }
+
+    .page-heading h1 {
+        font-size: 23px;
+    }
+
+    .manage-modal {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .action-button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">📦</div>
+        <span class="brand-name">SME Inventory</span>
+    </div>
+
+    <div class="nav-heading">MAIN MENU</div>
+
+    <nav class="nav-menu">
+
+        <a href="home.html" class="nav-item" title="Home">
+            <span class="nav-icon">⌂</span>
+            <span class="nav-label">Home</span>
+        </a>
+
+        <div class="product-nav-group open" id="productNavGroup">
+
+            <button type="button"
+                    class="nav-item product-toggle"
+                    id="productToggle"
+                    aria-expanded="true"
+                    title="Products">
+
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">Products</span>
+                <span class="submenu-arrow">⌄</span>
+
+            </button>
+
+            <div class="product-submenu">
+
+                <a href="products.html" class="active">
+                    Product Management
+                </a>
+
+                <a href="add-product.html">
+                    Add Product
+                </a>
+
+                <a href="product-categories.html">
+                    Product Categories
+                </a>
+
+                <a href="product-movement-history.html">
+                    Product Movement History
+                </a>
+
+            </div>
+        </div>
+
+        <a href="stock.html" class="nav-item" title="Stock">
+            <span class="nav-icon">▤</span>
+            <span class="nav-label">Stock</span>
+        </a>
+
+        <a href="reports.html" class="nav-item" title="Reports">
+            <span class="nav-icon">▥</span>
+            <span class="nav-label">Reports</span>
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <a href="settings.html"
+           class="nav-item workspace-link"
+           title="Workspace">
+
+            <span class="nav-icon">▦</span>
+            <span class="nav-label">Workspace</span>
+
+        </a>
+
+    </div>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main-content" id="mainContent">
+
+    <header class="top-header">
+
+        <div class="header-left">
+
+            <button class="toggle-button"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                    title="Toggle sidebar">
+                ☰
+            </button>
+
+            <h2>Product Management</h2>
+
+        </div>
+
+        <div class="header-right" id="currentDate"></div>
+
+    </header>
+
+    <section class="page-heading">
+
+        <h1>Product Management</h1>
+
+        <p>
+            View and manage your products, categories, and inventory quantities.
+        </p>
+
+    </section>
+
+    <div class="notification" id="notification" role="status"></div>
+
+    <div class="table-container">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Category ID</th>
+                    <th>Product Category</th>
+                    <th>Product Price (RM)</th>
+                    <th>Initial Quantity</th>
+                    <th>Quantity Sold</th>
+                    <th>Remaining Stock</th>
+                    <th>Manage</th>
+                </tr>
+            </thead>
+
+            <tbody id="productList"></tbody>
+        </table>
+
+        <div id="emptyMessage"
+             class="empty-message"
+             style="display:none;">
+
+            No products found. Add your first product to get started.
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- PRODUCT MANAGEMENT MODAL -->
+
+<div class="modal-overlay" id="manageModal">
+
+    <div class="manage-modal">
+
+        <!-- MENU VIEW -->
+
+        <section class="modal-view active" id="menuView">
+
+            <div class="modal-header">
+                <h2>Manage Product</h2>
+
+                <button class="close-button"
+                        type="button"
+                        data-close-modal
+                        aria-label="Close">&times;</button>
+            </div>
+
+            <div class="modal-product-info" id="modalProductInfo"></div>
+
+            <button class="modal-option" id="editProduct" type="button">
+                ✏️ &nbsp; Edit Product
+            </button>
+
+            <button class="modal-option" id="updateStock" type="button">
+                📦 &nbsp; Update Stock
+            </button>
+
+            <button class="modal-option" id="recordSale" type="button">
+                🛒 &nbsp; Record Sale
+            </button>
+
+            <button class="modal-option delete-option" id="deleteProduct" type="button">
+                🗑️ &nbsp; Move to Recycle Bin
+            </button>
+
+        </section>
+
+
+        <!-- EDIT PRODUCT VIEW -->
+
+        <section class="modal-view" id="editView">
+
+            <div class="modal-header">
+                <h2>Edit Product</h2>
+
+                <button class="close-button"
+                        type="button"
+                        data-close-modal
+                        aria-label="Close">&times;</button>
+            </div>
+
+            <p class="form-description">
+                Update the product information and category below.
+            </p>
+
+            <form id="editForm">
+
+                <div class="form-group">
+                    <label for="editProductId">Product ID</label>
+                    <input type="text"
+                           id="editProductId"
+                           maxlength="50"
+                           placeholder="Enter Product ID"
+                           required>
+                    <span class="form-hint">
+                        Product ID can be changed, but must be unique.
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text"
+                           id="editProductName"
+                           maxlength="100"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductCategory">Product Category</label>
+
+                    <select id="editProductCategory" required>
+                        <option value="">Select a category</option>
+                    </select>
+
+                    <div class="category-empty-note" id="categoryEmptyNote">
+                        No categories have been created yet.
+                        <a href="product-categories.html">Create a category</a>
+                        before editing this product.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCategoryCode">Category ID</label>
+                    <input type="text"
+                           id="editCategoryCode"
+                           placeholder="Selected category ID"
+                           readonly>
+                    <span class="form-hint">
+                        This ID is taken automatically from the selected category.
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductPrice">Product Price (RM)</label>
+                    <input type="number"
+                           id="editProductPrice"
+                           min="0"
+                           step="0.01"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTotalQuantity">Initial Quantity</label>
+                    <input type="number"
+                           id="editTotalQuantity"
+                           min="0"
+                           step="1"
+                           required>
+                    <span class="form-hint">
+                        This cannot be lower than the number of units already sold.
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="editMinStock">Minimum Stock Level</label>
+                    <input type="number"
+                           id="editMinStock"
+                           min="0"
+                           step="1"
+                           required>
+                    <span class="form-hint">
+                        Used for the product's low-stock alert.
+                    </span>
+                </div>
+
+                <div class="form-actions">
+                    <button class="action-button secondary"
+                            type="button"
+                            data-back-menu>
+                        Back
+                    </button>
+
+                    <button class="action-button primary"
+                            type="submit"
+                            id="saveEditButton">
+                        Save Changes
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- UPDATE STOCK VIEW -->
+
+        <section class="modal-view" id="stockView">
+
+            <div class="modal-header">
+                <h2>Update Stock</h2>
+
+                <button class="close-button"
+                        type="button"
+                        data-close-modal
+                        aria-label="Close">&times;</button>
+            </div>
+
+            <p class="form-description">
+                Add new units to the existing stock.
+            </p>
+
+            <div class="stock-summary">
+                Current remaining stock:
+                <strong id="stockCurrentQuantity">0</strong> units
+            </div>
+
+            <form id="stockForm">
+
+                <div class="form-group">
+                    <label for="stockAmount">Quantity to Add</label>
+                    <input type="number"
+                           id="stockAmount"
+                           min="1"
+                           step="1"
+                           placeholder="Enter quantity"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockReason">Reason for Stock Update</label>
+                    <select id="stockReason" required>
+                        <option value="Restock">Restock</option>
+                        <option value="Returned Goods">Returned Goods</option>
+                        <option value="Stock Correction">Stock Correction</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockDetails">Additional Details</label>
+                    <textarea id="stockDetails"
+                              rows="3"
+                              maxlength="300"
+                              placeholder="Optional notes about this stock update"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="action-button secondary"
+                            type="button"
+                            data-back-menu>
+                        Back
+                    </button>
+
+                    <button class="action-button primary"
+                            type="submit"
+                            id="saveStockButton">
+                        Update Stock
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- RECORD SALE VIEW -->
+
+        <section class="modal-view" id="saleView">
+
+            <div class="modal-header">
+                <h2>Record Sale</h2>
+
+                <button class="close-button"
+                        type="button"
+                        data-close-modal
+                        aria-label="Close">&times;</button>
+            </div>
+
+            <p class="form-description">
+                Enter the number of units sold. The remaining stock will be updated automatically.
+            </p>
+
+            <div class="stock-summary">
+                Available stock:
+                <strong id="saleCurrentQuantity">0</strong> units
+            </div>
+
+            <form id="saleForm">
+
+                <div class="form-group">
+                    <label for="saleAmount">Quantity Sold</label>
+                    <input type="number"
+                           id="saleAmount"
+                           min="1"
+                           step="1"
+                           placeholder="Enter quantity sold"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="saleDetails">Sale Details</label>
+                    <textarea id="saleDetails"
+                              rows="3"
+                              maxlength="300"
+                              placeholder="Optional sale notes"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="action-button secondary"
+                            type="button"
+                            data-back-menu>
+                        Back
+                    </button>
+
+                    <button class="action-button primary"
+                            type="submit"
+                            id="saveSaleButton">
+                        Record Sale
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- RECYCLE BIN CONFIRMATION VIEW -->
+
+        <section class="modal-view" id="deleteView">
+
+            <div class="modal-header">
+                <h2>Move to Recycle Bin</h2>
+
+                <button class="close-button"
+                        type="button"
+                        data-close-modal
+                        aria-label="Close">&times;</button>
+            </div>
+
+            <p class="form-description" id="deleteProductDescription"></p>
+
+            <div class="delete-warning">
+                This product will be removed from your active inventory and moved to the Recycle Bin. You can restore it later from Workspace.
+            </div>
+
+            <div class="form-actions">
+                <button class="action-button secondary"
+                        type="button"
+                        data-back-menu>
+                    Cancel
+                </button>
+
+                <button class="action-button danger"
+                        type="button"
+                        id="confirmDeleteButton">
+                    Move to Recycle Bin
+                </button>
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- FIREBASE JAVASCRIPT -->
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged,
+    signOut,
+    reload
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+import {
+    collection,
+    getDocs,
+    doc,
+    updateDoc,
+    deleteDoc,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+
+let currentUser = null;
+let allProducts = [];
+let allCategories = [];
+let categoryMap = new Map();
+let selectedProduct = null;
+let notificationTimer = null;
+
+
+/* SIDEBAR */
+
+const sidebar = document.getElementById("sidebar");
+const mainContent = document.getElementById("mainContent");
+const productToggle = document.getElementById("productToggle");
+const productNavGroup = document.getElementById("productNavGroup");
+const sidebarToggle = document.getElementById("sidebarToggle");
+
+sidebarToggle.addEventListener("click", () => {
+
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("expanded");
+
+    if (sidebar.classList.contains("collapsed")) {
+        productNavGroup.classList.remove("open");
+        productToggle.setAttribute("aria-expanded", "false");
+    }
+
+});
+
+productToggle.addEventListener("click", () => {
+
+    if (sidebar.classList.contains("collapsed")) {
+        sidebar.classList.remove("collapsed");
+        mainContent.classList.remove("expanded");
+    }
+
+    const isOpen = productNavGroup.classList.toggle("open");
+
+    productToggle.setAttribute("aria-expanded", String(isOpen));
+
+});
+
+
+/* CURRENT DATE */
+
+document.getElementById("currentDate").textContent =
+    new Date().toLocaleDateString("en-MY", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+
+/* NOTIFICATION */
+
+function showNotification(message, type = "success") {
+
+    const notification = document.getElementById("notification");
+
+    clearTimeout(notificationTimer);
+
+    notification.textContent = message;
+    notification.className = "notification show " + type;
+
+    notification.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+
+    notificationTimer = setTimeout(() => {
+        notification.classList.remove("show");
+    }, 5000);
+
+}
+
+
+/* QUANTITY HELPERS */
+
+function getOriginalQuantity(product) {
+
+    if (product.quantityAdded !== undefined) {
+        return Number(product.quantityAdded) || 0;
+    }
+
+    return (Number(product.quantity) || 0) +
+           (Number(product.quantitySold) || 0);
+
+}
+
+function getQuantitySold(product) {
+    return Number(product.quantitySold) || 0;
+}
+
+function getRemainingStock(product) {
+    return Number(product.quantity) || 0;
+}
+
+function getMinimumStock(product) {
+
+    if (product.minStockLevel !== undefined &&
+        product.minStockLevel !== null) {
+        return Number(product.minStockLevel) || 0;
+    }
+
+    return 5;
+
+}
+
+
+/* FIRESTORE REFERENCES */
+
+function getProductReference(product) {
+
+    return doc(
+        db,
+        "users",
+        currentUser.uid,
+        "products",
+        product.id
+    );
+
+}
+
+function getRecycleBinReference() {
+
+    return collection(
+        db,
+        "users",
+        currentUser.uid,
+        "recycleBin"
+    );
+
+}
+
+
+/* RECORD PRODUCT ACTIVITY */
+
+async function recordMovement(data) {
+
+    try {
+
+        const historyRef = collection(
+            db,
+            "users",
+            currentUser.uid,
+            "stockMovements"
+        );
+
+        await addDoc(historyRef, {
+
+            productName: data.productName || "Unknown Product",
+            productId: String(data.productId || ""),
+            action: data.action,
+
+            quantityChange: Number(data.quantityChange) || 0,
+            previousQuantity: Number(data.previousQuantity) || 0,
+            newQuantity: Number(data.newQuantity) || 0,
+
+            details: data.details || "",
+            reason: data.reason || "",
+
+            performedBy: currentUser.uid,
+            performedByEmail: currentUser.email || "",
+
+            createdAt: serverTimestamp()
+
+        });
+
+        return true;
+
+    } catch (error) {
+
+        console.error("Activity history error:", error);
+
+        showNotification(
+            "The product was updated, but its activity history could not be saved. Check your Firestore rules.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+}
+
+
+/* LOAD CATEGORIES */
+
+async function loadCategories() {
+
+    try {
+
+        const categoriesRef = collection(
+            db,
+            "users",
+            currentUser.uid,
+            "categories"
+        );
+
+        const snapshot = await getDocs(categoriesRef);
+
+        allCategories = snapshot.docs.map(categoryDocument => ({
+            id: categoryDocument.id,
+            ...categoryDocument.data()
+        }));
+
+        categoryMap = new Map(
+            allCategories.map(category => [category.id, category])
+        );
+
+        allCategories.sort((a, b) =>
+            String(a.name || "").localeCompare(String(b.name || ""))
+        );
+
+        populateCategoryDropdown();
+
+    } catch (error) {
+
+        console.error("Load categories error:", error);
+
+        allCategories = [];
+        categoryMap.clear();
+
+        populateCategoryDropdown();
+
+        showNotification(
+            "Unable to load product categories. Please check your Firestore rules.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* POPULATE CATEGORY DROPDOWN */
+
+function populateCategoryDropdown() {
+
+    const categorySelect =
+        document.getElementById("editProductCategory");
+
+    const emptyNote =
+        document.getElementById("categoryEmptyNote");
+
+    categorySelect.innerHTML =
+        '<option value="">Select a category</option>';
+
+    allCategories.forEach(category => {
+
+        const option = document.createElement("option");
+
+        option.value = category.id;
+
+        option.textContent =
+            (category.categoryCode || "No Category ID") +
+            " — " +
+            (category.name || "Unnamed Category");
+
+        categorySelect.appendChild(option);
+
+    });
+
+    emptyNote.classList.toggle(
+        "show",
+        allCategories.length === 0
+    );
+
+    categorySelect.disabled = allCategories.length === 0;
+
+}
+
+
+/* UPDATE CATEGORY ID DISPLAY */
+
+document.getElementById("editProductCategory").addEventListener(
+    "change",
+    () => {
+
+        const categoryId =
+            document.getElementById("editProductCategory").value;
+
+        const category =
+            categoryMap.get(categoryId);
+
+        document.getElementById("editCategoryCode").value =
+            category ? (category.categoryCode || "") : "";
+
+    }
+);
+
+
+/* GET CURRENT CATEGORY DETAILS */
+
+function getProductCategoryDetails(product) {
+
+    const category = product.categoryId
+        ? categoryMap.get(product.categoryId)
+        : null;
+
+    if (category) {
+
+        return {
+            categoryId: category.id,
+            categoryCode: category.categoryCode || "",
+            categoryName: category.name || "Unnamed Category"
+        };
+
+    }
+
+    return {
+        categoryId: product.categoryId || "",
+        categoryCode: product.categoryCode || "",
+        categoryName: product.categoryName || "Unassigned"
+    };
+
+}
+
+
+/* LOAD PRODUCTS */
+
+async function loadProducts() {
+
+    try {
+
+        const productsRef = collection(
+            db,
+            "users",
+            currentUser.uid,
+            "products"
+        );
+
+        const snapshot = await getDocs(productsRef);
+
+        allProducts = snapshot.docs.map(productDocument => ({
+            id: productDocument.id,
+            ...productDocument.data()
+        }));
+
+        displayProducts();
+
+    } catch (error) {
+
+        console.error("Load products error:", error);
+
+        showNotification(
+            "Unable to load products. Please try again.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* DISPLAY PRODUCTS */
+
+function displayProducts() {
+
+    const productList = document.getElementById("productList");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    productList.innerHTML = "";
+
+    if (allProducts.length === 0) {
+        emptyMessage.style.display = "block";
+        return;
+    }
+
+    emptyMessage.style.display = "none";
+
+    allProducts.forEach(product => {
+
+        const row = document.createElement("tr");
+
+        const productID = product.productId || product.id;
+        const originalQuantity = getOriginalQuantity(product);
+        const sold = getQuantitySold(product);
+        const remaining = getRemainingStock(product);
+        const price = Number(product.price) || 0;
+
+        const category = getProductCategoryDetails(product);
+
+        function addCell(value) {
+
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+
+            return cell;
+
+        }
+
+        addCell(productID);
+        addCell(product.name || "Unnamed Product");
+        addCell(category.categoryCode || "—");
+
+        const categoryCell = document.createElement("td");
+        const categoryBadge = document.createElement("span");
+
+        categoryBadge.className = "category-badge";
+        categoryBadge.textContent = category.categoryName;
+
+        categoryCell.appendChild(categoryBadge);
+        row.appendChild(categoryCell);
+
+        addCell(price.toFixed(2));
+        addCell(originalQuantity);
+        addCell(sold);
+        addCell(remaining);
+
+        const actionCell = document.createElement("td");
+
+        const manageButton = document.createElement("button");
+
+        manageButton.textContent = "Manage";
+        manageButton.className = "manage-button";
+        manageButton.type = "button";
+
+        manageButton.addEventListener("click", () => {
+            openManageWindow(product);
+        });
+
+        actionCell.appendChild(manageButton);
+        row.appendChild(actionCell);
+
+        productList.appendChild(row);
+
+    });
+
+}
+
+
+/* MODAL VIEW CONTROL */
+
+const modal = document.getElementById("manageModal");
+
+function showModalView(viewId) {
+
+    document.querySelectorAll(".modal-view").forEach(view => {
+        view.classList.remove("active");
+    });
+
+    document.getElementById(viewId).classList.add("active");
+
+}
+
+function openManageWindow(product) {
+
+    selectedProduct = product;
+
+    const productID = product.productId || product.id;
+    const category = getProductCategoryDetails(product);
+
+    document.getElementById("modalProductInfo").textContent =
+        "Product: " + (product.name || "Unnamed Product") +
+        " | Product ID: " + productID +
+        " | Category: " + category.categoryName;
+
+    showModalView("menuView");
+    modal.classList.add("show");
+
+}
+
+function closeManageWindow() {
+
+    modal.classList.remove("show");
+    selectedProduct = null;
+
+    document.getElementById("editForm").reset();
+    document.getElementById("stockForm").reset();
+    document.getElementById("saleForm").reset();
+
+    document.getElementById("editCategoryCode").value = "";
+
+    showModalView("menuView");
+
+}
+
+
+/* CLOSE MODAL */
+
+document.querySelectorAll("[data-close-modal]").forEach(button => {
+    button.addEventListener("click", closeManageWindow);
+});
+
+modal.addEventListener("click", event => {
+
+    if (event.target === modal) {
+        closeManageWindow();
+    }
+
+});
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape" && modal.classList.contains("show")) {
+        closeManageWindow();
+    }
+
+});
+
+
+/* BACK TO MANAGE MENU */
+
+document.querySelectorAll("[data-back-menu]").forEach(button => {
+
+    button.addEventListener("click", () => {
+        showModalView("menuView");
+    });
+
+});
+
+
+/* OPEN EDIT FORM */
+
+document.getElementById("editProduct").addEventListener("click", () => {
+
+    if (!selectedProduct) return;
+
+    if (allCategories.length === 0) {
+
+        showNotification(
+            "Create a product category first before editing this product.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const product = selectedProduct;
+
+    document.getElementById("editProductId").value =
+        product.productId || product.id;
+
+    document.getElementById("editProductName").value =
+        product.name || "";
+
+    document.getElementById("editProductPrice").value =
+        Number(product.price) || 0;
+
+    document.getElementById("editTotalQuantity").value =
+        getOriginalQuantity(product);
+
+    document.getElementById("editMinStock").value =
+        getMinimumStock(product);
+
+    /*
+     * Select the saved category using its Firestore document ID.
+     * The category ID display is filled from the selected category.
+     */
+
+    const categorySelect =
+        document.getElementById("editProductCategory");
+
+    let savedCategoryId = product.categoryId || "";
+
+    if (!savedCategoryId && product.categoryCode) {
+
+        const matchingCategory = allCategories.find(category =>
+            String(category.categoryCode || "").toLowerCase() ===
+            String(product.categoryCode).toLowerCase()
+        );
+
+        if (matchingCategory) {
+            savedCategoryId = matchingCategory.id;
+        }
+
+    }
+
+    if (!savedCategoryId && product.categoryName) {
+
+        const matchingCategory = allCategories.find(category =>
+            String(category.name || "").toLowerCase() ===
+            String(product.categoryName).toLowerCase()
+        );
+
+        if (matchingCategory) {
+            savedCategoryId = matchingCategory.id;
+        }
+
+    }
+
+    categorySelect.value = savedCategoryId;
+
+    const selectedCategory = categoryMap.get(savedCategoryId);
+
+    document.getElementById("editCategoryCode").value =
+        selectedCategory
+            ? (selectedCategory.categoryCode || "")
+            : "";
+
+    showModalView("editView");
+
+});
+
+
+/* SAVE EDITED PRODUCT */
+
+document.getElementById("editForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!selectedProduct) return;
+
+    const product = selectedProduct;
+
+    const newProductId =
+        document.getElementById("editProductId").value.trim();
+
+    const newName =
+        document.getElementById("editProductName").value.trim();
+
+    const newPriceInput =
+        document.getElementById("editProductPrice").value;
+
+    const newQuantityInput =
+        document.getElementById("editTotalQuantity").value;
+
+    const newMinimumInput =
+        document.getElementById("editMinStock").value;
+
+    const selectedCategoryId =
+        document.getElementById("editProductCategory").value;
+
+    const selectedCategory =
+        categoryMap.get(selectedCategoryId);
+
+    const newPrice = Number(newPriceInput);
+    const newOriginalQuantity = Number(newQuantityInput);
+    const newMinimumStock = Number(newMinimumInput);
+
+    const oldProductId = product.productId || product.id;
+
+    const sold = getQuantitySold(product);
+    const oldRemaining = getRemainingStock(product);
+
+    /* VALIDATE PRODUCT ID */
+
+    if (!newProductId) {
+        showNotification("Product ID cannot be empty.", "error");
+        return;
+    }
+
+    if (newProductId.length > 50) {
+        showNotification("Product ID cannot exceed 50 characters.", "error");
+        return;
+    }
+
+    /* CHECK FOR DUPLICATE PRODUCT IDS */
+
+    const duplicateProduct = allProducts.find(item => {
+
+        if (item.id === product.id) return false;
+
+        const existingId = String(item.productId || item.id)
+            .trim()
+            .toLowerCase();
+
+        return existingId === newProductId.toLowerCase();
+
+    });
+
+    if (duplicateProduct) {
+        showNotification(
+            "This Product ID is already being used by another product. Please choose a different ID.",
+            "error"
+        );
+        return;
+    }
+
+    /* VALIDATE PRODUCT NAME */
+
+    if (!newName) {
+        showNotification("Product name cannot be empty.", "error");
+        return;
+    }
+
+    /* VALIDATE CATEGORY */
+
+    if (!selectedCategoryId || !selectedCategory) {
+        showNotification(
+            "Please select a valid product category.",
+            "error"
+        );
+        return;
+    }
+
+    /* VALIDATE PRICE */
+
+    if (
+        newPriceInput === "" ||
+        !Number.isFinite(newPrice) ||
+        newPrice < 0
+    ) {
+        showNotification("Please enter a valid product price.", "error");
+        return;
+    }
+
+    /* VALIDATE INITIAL QUANTITY */
+
+    if (
+        newQuantityInput === "" ||
+        !Number.isInteger(newOriginalQuantity) ||
+        newOriginalQuantity < sold
+    ) {
+        showNotification(
+            "Initial quantity cannot be lower than the quantity already sold.",
+            "error"
+        );
+        return;
+    }
+
+    /* VALIDATE MINIMUM STOCK */
+
+    if (
+        newMinimumInput === "" ||
+        !Number.isInteger(newMinimumStock) ||
+        newMinimumStock < 0
+    ) {
+        showNotification("Enter a valid minimum stock level.", "error");
+        return;
+    }
+
+    const newRemaining = newOriginalQuantity - sold;
+    const quantityDifference = newRemaining - oldRemaining;
+
+    const saveButton = document.getElementById("saveEditButton");
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
+    try {
+
+        /* UPDATE THE EXISTING FIRESTORE DOCUMENT */
+
+        await updateDoc(getProductReference(product), {
+
+            productId: newProductId,
+            name: newName,
+            price: newPrice,
+
+            categoryId: selectedCategory.id,
+            categoryCode: selectedCategory.categoryCode || "",
+            categoryName: selectedCategory.name || "",
+
+            quantityAdded: newOriginalQuantity,
+            quantity: newRemaining,
+            quantitySold: sold,
+            minStockLevel: newMinimumStock
+
+        });
+
+        /* RECORD PRODUCT UPDATE */
+
+        await recordMovement({
+
+            productName: newName,
+            productId: newProductId,
+            action: "Product Updated",
+            quantityChange: quantityDifference,
+            previousQuantity: oldRemaining,
+            newQuantity: newRemaining,
+
+            details:
+                "Product information updated. Product ID: " +
+                oldProductId + " changed to " + newProductId +
+                ". Category: " + (selectedCategory.name || "") + ".",
+
+            reason: "Product information update"
+
+        });
+
+        closeManageWindow();
+
+        await loadProducts();
+
+        showNotification(
+            oldProductId !== newProductId
+                ? "Product updated successfully! Product ID changed to " + newProductId + "."
+                : "Product updated successfully!",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error("Edit product error:", error);
+
+        showNotification(
+            "Unable to update product. Please try again.",
+            "error"
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+        saveButton.textContent = "Save Changes";
+
+    }
+
+});
+
+
+/* OPEN UPDATE STOCK FORM */
+
+document.getElementById("updateStock").addEventListener("click", () => {
+
+    if (!selectedProduct) return;
+
+    document.getElementById("stockCurrentQuantity").textContent =
+        getRemainingStock(selectedProduct);
+
+    document.getElementById("stockForm").reset();
+
+    showModalView("stockView");
+
+});
+
+
+/* SAVE STOCK UPDATE */
+
+document.getElementById("stockForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!selectedProduct) return;
+
+    const product = selectedProduct;
+
+    const amountInput = document.getElementById("stockAmount").value;
+    const amount = Number(amountInput);
+
+    const reason = document.getElementById("stockReason").value;
+    const extraDetails = document.getElementById("stockDetails").value.trim();
+
+    if (
+        amountInput === "" ||
+        !Number.isInteger(amount) ||
+        amount <= 0
+    ) {
+        showNotification(
+            "Enter a valid positive whole number.",
+            "error"
+        );
+        return;
+    }
+
+    const remaining = getRemainingStock(product);
+    const originalQuantity = getOriginalQuantity(product);
+    const sold = getQuantitySold(product);
+
+    const newRemaining = remaining + amount;
+    const newOriginalQuantity = originalQuantity + amount;
+
+    const saveButton = document.getElementById("saveStockButton");
+    saveButton.disabled = true;
+    saveButton.textContent = "Updating...";
+
+    try {
+
+        await updateDoc(getProductReference(product), {
+
+            quantity: newRemaining,
+            quantityAdded: newOriginalQuantity,
+            quantitySold: sold
+
+        });
+
+        await recordMovement({
+
+            productName: product.name,
+            productId: product.productId || product.id,
+            action: "Stock Added",
+            quantityChange: amount,
+            previousQuantity: remaining,
+            newQuantity: newRemaining,
+            reason: reason,
+
+            details: extraDetails
+                ? amount + " unit(s) added. " + extraDetails
+                : amount + " new unit(s) added to stock. Reason: " + reason
+
+        });
+
+        closeManageWindow();
+        await loadProducts();
+
+        showNotification("Stock updated successfully!", "success");
+
+    } catch (error) {
+
+        console.error("Stock update error:", error);
+
+        showNotification(
+            "Unable to update stock. Please try again.",
+            "error"
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+        saveButton.textContent = "Update Stock";
+
+    }
+
+});
+
+
+/* OPEN RECORD SALE FORM */
+
+document.getElementById("recordSale").addEventListener("click", () => {
+
+    if (!selectedProduct) return;
+
+    const remaining = getRemainingStock(selectedProduct);
+
+    document.getElementById("saleCurrentQuantity").textContent = remaining;
+
+    document.getElementById("saleForm").reset();
+
+    document.getElementById("saleAmount").max = remaining;
+
+    if (remaining <= 0) {
+
+        showNotification(
+            "This product is out of stock and cannot be sold.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    showModalView("saleView");
+
+});
+
+
+/* SAVE SALE */
+
+document.getElementById("saleForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!selectedProduct) return;
+
+    const product = selectedProduct;
+
+    const saleInput = document.getElementById("saleAmount").value;
+    const amount = Number(saleInput);
+
+    const saleDetails = document.getElementById("saleDetails").value.trim();
+
+    const remaining = getRemainingStock(product);
+    const originalQuantity = getOriginalQuantity(product);
+    const sold = getQuantitySold(product);
+
+    if (
+        saleInput === "" ||
+        !Number.isInteger(amount) ||
+        amount <= 0
+    ) {
+        showNotification("Enter a valid whole number.", "error");
+        return;
+    }
+
+    if (amount > remaining) {
+        showNotification(
+            "You cannot sell more than the available stock.",
+            "error"
+        );
+        return;
+    }
+
+    const newRemaining = remaining - amount;
+    const newSold = sold + amount;
+
+    const saveButton = document.getElementById("saveSaleButton");
+    saveButton.disabled = true;
+    saveButton.textContent = "Recording...";
+
+    try {
+
+        await updateDoc(getProductReference(product), {
+
+            quantity: newRemaining,
+            quantityAdded: originalQuantity,
+            quantitySold: newSold
+
+        });
+
+        await recordMovement({
+
+            productName: product.name,
+            productId: product.productId || product.id,
+            action: "Sale Recorded",
+            quantityChange: -amount,
+            previousQuantity: remaining,
+            newQuantity: newRemaining,
+            reason: "Sale",
+
+            details: saleDetails
+                ? amount + " unit(s) sold. " + saleDetails
+                : amount + " unit(s) sold."
+
+        });
+
+        closeManageWindow();
+        await loadProducts();
+
+        showNotification("Sale recorded successfully!", "success");
+
+    } catch (error) {
+
+        console.error("Record sale error:", error);
+
+        showNotification(
+            "Unable to record sale. Please try again.",
+            "error"
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+        saveButton.textContent = "Record Sale";
+
+    }
+
+});
+
+
+/* OPEN RECYCLE BIN CONFIRMATION */
+
+document.getElementById("deleteProduct").addEventListener("click", () => {
+
+    if (!selectedProduct) return;
+
+    document.getElementById("deleteProductDescription").textContent =
+        "Are you sure you want to move " +
+        (selectedProduct.name || "this product") +
+        " to the Recycle Bin?";
+
+    showModalView("deleteView");
+
+});
+
+
+/* MOVE PRODUCT TO RECYCLE BIN */
+
+document.getElementById("confirmDeleteButton").addEventListener(
+    "click",
+    async () => {
+
+        if (!selectedProduct) return;
+
+        const product = selectedProduct;
+
+        const deleteButton = document.getElementById("confirmDeleteButton");
+
+        deleteButton.disabled = true;
+        deleteButton.textContent = "Moving...";
+
+        const remaining = getRemainingStock(product);
+
+        try {
+
+            /*
+             * Save the product in the Recycle Bin first.
+             * Only delete the active product if this succeeds.
+             */
+
+            const productData = { ...product };
+            delete productData.id;
+
+            await addDoc(getRecycleBinReference(), {
+
+                itemType: "product",
+
+                originalProductId: product.id,
+
+                productName: product.name || "Unnamed Product",
+
+                productId: product.productId || product.id,
+
+                productData: productData,
+
+                deletedAt: serverTimestamp(),
+
+                deletedBy: currentUser.uid,
+
+                source: "Product Management"
+
+            });
+
+            /* REMOVE IT FROM ACTIVE PRODUCTS */
+
+            await deleteDoc(getProductReference(product));
+
+            await recordMovement({
+
+                productName: product.name,
+                productId: product.productId || product.id,
+                action: "Product Moved to Recycle Bin",
+                quantityChange: 0,
+                previousQuantity: remaining,
+                newQuantity: remaining,
+                reason: "Moved to Recycle Bin",
+                details: "Product moved to the Recycle Bin."
+
+            });
+
+            closeManageWindow();
+            await loadProducts();
+
+            showNotification(
+                "Product moved to the Recycle Bin successfully.",
+                "success"
+            );
+
+        } catch (error) {
+
+            console.error("Recycle Bin error:", error);
+
+            showNotification(
+                "Unable to move the product to the Recycle Bin. Please check your connection and try again.",
+                "error"
+            );
+
+        } finally {
+
+            deleteButton.disabled = false;
+            deleteButton.textContent = "Move to Recycle Bin";
+
+        }
+
+    }
+);
+
+
+/* AUTHENTICATION AND EMAIL VERIFICATION */
+
+onAuthStateChanged(auth, async user => {
+
+    if (!user) {
+        window.location.replace("loging.html");
+        return;
+    }
+
+    try {
+
+        await reload(user);
+
+        if (!user.emailVerified) {
+            await signOut(auth);
+            window.location.replace("loging.html");
+            return;
+        }
+
+        currentUser = user;
+
+        /* Load categories before products so category names can be displayed. */
+        await loadCategories();
+        await loadProducts();
+
+        document.body.style.visibility = "visible";
+
+    } catch (error) {
+
+        console.error("Authentication error:", error);
+
+        await signOut(auth);
+        window.location.replace("loging.html");
+
+    }
+
+});
+
+</script>
+
+<script type="module" src="ai-assistant.js"></script>
+
+</body>
+</html>

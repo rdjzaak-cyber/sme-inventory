@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | SME Inventory</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #243447;
+            visibility: hidden;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background: #243B55;
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: width 0.25s ease;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 12px 28px;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .brand-icon {
+            font-size: 27px;
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .menu-label {
+            color: #a9bdd2;
+            font-size: 11px;
+            letter-spacing: 1px;
+            padding: 0 13px;
+            margin-bottom: 12px;
+            white-space: nowrap;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 48px;
+            padding: 0 13px;
+            color: #dbeafe;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: #315b89;
+            color: white;
+        }
+
+        .nav-icon {
+            width: 24px;
+            min-width: 24px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        /* PRODUCTS SUBMENU */
+
+        .products-toggle {
+            width: 100%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .products-toggle .arrow {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .products-group.open .products-toggle .arrow {
+            transform: rotate(180deg);
+        }
+
+        .products-submenu {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            margin: 3px 0 5px 36px;
+            padding-left: 12px;
+            border-left: 1px solid #66809a;
+        }
+
+        .products-group.open .products-submenu {
+            display: flex;
+        }
+
+        .submenu-item {
+            display: block;
+            padding: 10px 12px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: 0.2s ease;
+        }
+
+        .submenu-item:hover {
+            background: #315b89;
+            color: white;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        /* COLLAPSED SIDEBAR */
+
+        body.sidebar-collapsed .sidebar {
+            width: 78px;
+        }
+
+        body.sidebar-collapsed .brand {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        body.sidebar-collapsed .brand-name,
+        body.sidebar-collapsed .menu-label,
+        body.sidebar-collapsed .nav-text,
+        body.sidebar-collapsed .products-toggle .arrow,
+        body.sidebar-collapsed .products-submenu {
+            display: none;
+        }
+
+        body.sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 0;
+        }
+
+        /* MAIN CONTENT */
+
+        .main-content {
+            margin-left: 250px;
+            padding: 25px 30px;
+            transition: margin-left 0.25s ease;
+            min-height: 100vh;
+        }
+
+        body.sidebar-collapsed .main-content {
+            margin-left: 78px;
+        }
+
+        .topbar {
+            background: white;
+            min-height: 65px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            margin-bottom: 30px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            border: none;
+            background: #f1f5f9;
+            color: #1e3a5f;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            font-size: 21px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: #e2e8f0;
+        }
+
+        .topbar-title {
+            color: #1e3a5f;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .topbar-date {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* PAGE HEADER */
+
+        .page-header {
+            background: linear-gradient(120deg, #243B55, #315b89);
+            padding: 32px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(36,59,85,0.12);
+        }
+
+        .page-header h1 {
+            font-size: 27px;
+            margin: 0 0 12px;
+        }
+
+        .page-header p {
+            color: #e2eaf3;
+            line-height: 1.8;
+            font-size: 14px;
+            max-width: 750px;
+            margin: 0;
+        }
+
+        /* CONTENT SECTIONS */
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 13px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border: 1px solid #edf1f5;
+        }
+
+        .section h2 {
+            color: #1e3a5f;
+            font-size: 19px;
+            margin: 0 0 16px;
+        }
+
+        .section p {
+            line-height: 1.8;
+            color: #526174;
+            font-size: 14px;
+            margin: 0 0 12px;
+        }
+
+        .section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* FEATURES */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            padding: 22px;
+            border-radius: 11px;
+            border: 1px solid #e5eaf0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+        }
+
+        .feature-icon {
+            width: 43px;
+            height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf1f8;
+            border-radius: 10px;
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #1e3a5f;
+            font-size: 15px;
+            margin: 0 0 10px;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* TECHNOLOGY */
+
+        .technology-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+        }
+
+        .technology-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            background: #f8fafc;
+            padding: 16px;
+            border: 1px solid #e5eaf0;
+            border-radius: 9px;
+        }
+
+        .technology-icon {
+            font-size: 23px;
+        }
+
+        .technology-item strong {
+            display: block;
+            color: #1e3a5f;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .technology-item span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            padding: 22px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 78px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .sidebar .brand {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .sidebar .brand-name,
+            .sidebar .menu-label,
+            .sidebar .nav-text,
+            .sidebar .products-toggle .arrow,
+            .sidebar .products-submenu {
+                display: none;
+            }
+
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 0;
+            }
+
+            .main-content {
+                margin-left: 78px;
+                padding: 18px;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .topbar {
+                padding: 13px;
+            }
+
+            .topbar-title {
+                font-size: 14px;
+            }
+
+            .topbar-date {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .main-content {
+                padding: 13px;
+            }
+
+            .page-header {
+                padding: 22px;
+            }
+
+            .page-header h1 {
+                font-size: 23px;
+            }
+
+            .section {
+                padding: 19px;
+            }
+
+            .features,
+            .technology-list {
+                grid-template-columns: 1fr;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <span class="brand-icon">📦</span>
+            <span class="brand-name">SME Inventory</span>
+        </div>
+
+        <div class="menu-label">MAIN MENU</div>
+
+        <nav class="nav-menu">
+
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                <span class="nav-text">Home</span>
+            </a>
+
+            <div class="products-group" id="productsGroup">
+
+                <button class="nav-item products-toggle" id="productsToggle" type="button">
+                    <span class="nav-icon">▣</span>
+                    <span class="nav-text">Products</span>
+                    <span class="arrow">▼</span>
+                </button>
+
+                <div class="products-submenu">
+
+                    <a href="products.html" class="submenu-item">
+                        Product Management
+                    </a>
+
+                    <a href="add-product.html" class="submenu-item">
+                        Add Product
+                    </a>
+
+                    <a href="product-categories.html" class="submenu-item">
+                        Product Categories
+                    </a>
+
+                    <a href="product-movement-history.html" class="submenu-item">
+                        Product Movement History
+                    </a>
+
+                </div>
+
+            </div>
+
+            <a href="stock.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span class="nav-text">Stock</span>
+            </a>
+
+            <a href="reports.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                <span class="nav-text">Reports</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span class="nav-text">Settings</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+                    ☰
+                </button>
+
+                <span class="topbar-title">Inventory Management</span>
+
+            </div>
+
+            <span class="topbar-date" id="currentDate"></span>
+
+        </header>
+
+
+        <!-- PAGE HEADER -->
+
+        <header class="page-header">
+
+            <h1>About the System</h1>
+
+            <p>
+                Learn more about the SME Inventory Management System
+                and how it supports inventory management for small
+                and medium enterprises.
+            </p>
+
+        </header>
+
+
+        <!-- SYSTEM OVERVIEW -->
+
+        <section class="section">
+
+            <h2>System Overview</h2>
+
+            <p>
+                The SME Inventory Management System is a web-based
+                application designed to help small and medium
+                enterprises manage their inventory more efficiently.
+                It provides a central platform for managing products,
+                monitoring stock quantities and reviewing inventory
+                information.
+            </p>
+
+        </section>
+
+
+        <!-- SYSTEM PURPOSE -->
+
+        <section class="section">
+
+            <h2>System Purpose</h2>
+
+            <p>
+                The purpose of this system is to simplify inventory
+                management, reduce manual record-keeping and help
+                business users maintain organised and accessible
+                product information.
+            </p>
+
+        </section>
+
+
+        <!-- MAIN FEATURES -->
+
+        <section class="section">
+
+            <h2>Main System Features</h2>
+
+            <div class="features">
+
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <h3>User Authentication</h3>
+                    <p>
+                        Allows users to register, log in and securely
+                        access their own inventory information.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Product Management</h3>
+                    <p>
+                        Allows users to add, view, search, edit and
+                        delete product records.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Stock Management</h3>
+                    <p>
+                        Helps users monitor stock quantities and
+                        identify low-stock and out-of-stock products.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Inventory Reports</h3>
+                    <p>
+                        Displays inventory statistics, including
+                        product quantities and total inventory value.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">☁️</div>
+                    <h3>Cloud Database</h3>
+                    <p>
+                        Uses Firebase services to store user accounts
+                        and inventory records in the cloud.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Assistant</h3>
+                    <p>
+                        Provides an assistant interface for users to
+                        ask general questions and receive assistance.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SYSTEM TECHNOLOGY -->
+
+        <section class="section">
+
+            <h2>Technologies Used</h2>
+
+            <div class="technology-list">
+
+                <div class="technology-item">
+                    <span class="technology-icon">💻</span>
+                    <div>
+                        <strong>Frontend</strong>
+                        <span>HTML, CSS and JavaScript</span>
+                    </div>
+                </div>
+
+                <div class="technology-item">
+                    <span class="technology-icon">🔐</span>
+                    <div>
+                        <strong>Authentication</strong>
+                        <span>Firebase Authentication</span>
+                    </div>
+                </div>
+
+                <div class="technology-item">
+                    <span class="technology-icon">☁️</span>
+                    <div>
+                        <strong>Database</strong>
+                        <span>Firebase Cloud Firestore</span>
+                    </div>
+                </div>
+
+                <div class="technology-item">
+                    <span class="technology-icon">🛠️</span>
+                    <div>
+                        <strong>Development Environment</strong>
+                        <span>Visual Studio Code</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="footer">
+            SME Inventory Management System
+        </footer>
+
+    </main>
+
+
+    <!-- FIREBASE AUTHENTICATION -->
+
+    <script type="module">
+
+        import { auth } from "./firebase.js";
+
+        import {
+            onAuthStateChanged,
+            signOut,
+            reload
+        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+
+        // SIDEBAR TOGGLE
+
+        const menuToggle = document.getElementById("menuToggle");
+
+        menuToggle.addEventListener("click", function() {
+            document.body.classList.toggle("sidebar-collapsed");
+        });
+
+
+        // PRODUCTS SUBMENU
+
+        const productsGroup = document.getElementById("productsGroup");
+        const productsToggle = document.getElementById("productsToggle");
+
+        productsToggle.addEventListener("click", function() {
+
+            if (document.body.classList.contains("sidebar-collapsed")) {
+                document.body.classList.remove("sidebar-collapsed");
+                productsGroup.classList.add("open");
+                return;
+            }
+
+            productsGroup.classList.toggle("open");
+
+        });
+
+
+        // CURRENT DATE
+
+        document.getElementById("currentDate").textContent =
+            new Date().toLocaleDateString("en-MY", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            });
+
+
+        // CHECK LOGIN STATUS AND EMAIL VERIFICATION
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+                window.location.replace("loging.html");
+                return;
+            }
+
+            try {
+
+                await reload(user);
+
+                if (!user.emailVerified) {
+                    await signOut(auth);
+                    window.location.replace("loging.html");
+                    return;
+                }
+
+                document.body.style.visibility = "visible";
+
+            } catch (error) {
+
+                console.error("Authentication error:", error);
+
+                await signOut(auth);
+                window.location.replace("loging.html");
+
+            }
+
+        });
+
+    </script>
+
+
+    <!-- AI ASSISTANT -->
+
+    <script type="module" src="ai-assistant.js"></script>
+
+</body>
+</html>

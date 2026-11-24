@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Management | SME Inventory</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --navy: #243B55;
+    --blue: #315b89;
+    --background: #f4f7fb;
+    --text: #243447;
+    --muted: #64748b;
+    --border: #e8edf4;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    visibility: hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: var(--navy);
+    padding: 22px 15px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: width 0.25s ease;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 10px 30px;
+    color: white;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    font-size: 27px;
+    width: 27px;
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.menu-label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 0 12px;
+    margin-bottom: 12px;
+    white-space: nowrap;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 13px 14px;
+    margin-bottom: 7px;
+    border-radius: 9px;
+    color: #dbeafe;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.nav-link:hover {
+    background: var(--blue);
+    transform: translateX(3px);
+}
+
+.nav-link.active {
+    background: var(--blue);
+    color: white;
+}
+
+.nav-icon {
+    width: 23px;
+    text-align: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+/* PRODUCTS SUBMENU */
+
+.product-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-toggle {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    text-align: left;
+}
+
+.product-toggle.active {
+    background: var(--blue);
+}
+
+.product-arrow {
+    margin-left: auto;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.product-group.open .product-arrow {
+    transform: rotate(180deg);
+}
+
+.product-submenu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 5px 0 8px 39px;
+}
+
+.product-group.open .product-submenu {
+    display: flex;
+}
+
+.product-submenu a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 10px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.product-submenu a:hover {
+    background: #31516f;
+    color: white;
+}
+
+.product-submenu a.active {
+    background: var(--blue);
+    color: white;
+    font-weight: bold;
+}
+
+/* WORKSPACE AT BOTTOM */
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+.workspace-link {
+    margin-bottom: 7px;
+}
+
+/* COLLAPSED SIDEBAR */
+
+.sidebar.collapsed {
+    width: 78px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.sidebar.collapsed .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sidebar.collapsed .product-arrow,
+.sidebar.collapsed .product-submenu {
+    display: none !important;
+}
+
+/* MAIN CONTENT */
+
+.main-content {
+    margin-left: 250px;
+    padding: 25px 32px;
+    min-height: 100vh;
+    transition: margin-left 0.25s ease;
+}
+
+.main-content.expanded {
+    margin-left: 78px;
+}
+
+/* TOP BAR */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 35px;
+    gap: 15px;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.toggle-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 9px;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--navy);
+}
+
+.toggle-button:hover {
+    background: #eaf1f8;
+}
+
+.topbar-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #475569;
+}
+
+.topbar-date {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* PAGE HEADING */
+
+.page-heading {
+    margin-bottom: 25px;
+}
+
+h1 {
+    color: #1e3a5f;
+    font-size: 27px;
+    margin: 0 0 8px;
+}
+
+.page-description {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* SUMMARY CARDS */
+
+.summary-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: white;
+    padding: 23px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.08);
+}
+
+.summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 17px;
+}
+
+.summary-label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.summary-icon {
+    width: 39px;
+    height: 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 19px;
+}
+
+.icon-blue {
+    background: #eaf1f8;
+}
+
+.icon-orange {
+    background: #fff3df;
+}
+
+.icon-red {
+    background: #feecec;
+}
+
+.summary-card h2 {
+    margin: 0;
+    color: #1e3a5f;
+    font-size: 29px;
+}
+
+.summary-card .low-number {
+    color: #d97706;
+}
+
+.summary-card .out-number {
+    color: #dc2626;
+}
+
+/* ALERT PANEL */
+
+.alert-section {
+    background: white;
+    padding: 24px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    border-left: 4px solid #d97706;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    margin-bottom: 27px;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 7px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    color: #1e3a5f;
+    font-size: 17px;
+}
+
+.alert-description {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 15px;
+    line-height: 1.5;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #edf1f5;
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+.alert-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #334155;
+}
+
+.alert-status {
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 20px;
+}
+
+.alert-low {
+    color: #b45309;
+    background: #fff3df;
+}
+
+.alert-out {
+    color: #dc2626;
+    background: #feecec;
+}
+
+.all-good {
+    color: #15803d;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 12px 0;
+}
+
+/* CURRENT STOCK TABLE */
+
+.stock-section {
+    background: white;
+    padding: 24px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+}
+
+.stock-section h2 {
+    color: #1e3a5f;
+    font-size: 17px;
+    margin: 0 0 20px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 450px;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: left;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+td {
+    padding: 15px;
+    font-size: 13px;
+    color: #475569;
+    border-bottom: 1px solid #edf1f5;
+}
+
+tbody tr {
+    transition: background 0.15s;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.low-stock,
+.available,
+.out-stock {
+    font-weight: bold;
+}
+
+.low-stock {
+    color: #d97706;
+}
+
+.available {
+    color: #15803d;
+}
+
+.out-stock {
+    color: #dc2626;
+}
+
+#emptyMessage {
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 950px) {
+    .summary-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 78px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .sidebar .brand {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar .brand-name,
+    .sidebar .menu-label,
+    .sidebar .nav-text {
+        display: none;
+    }
+
+    .sidebar .nav-link {
+        justify-content: center;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .sidebar .product-submenu,
+    .sidebar .product-arrow {
+        display: none !important;
+    }
+
+    .main-content,
+    .main-content.expanded {
+        margin-left: 78px;
+        padding: 20px 15px;
+    }
+
+    .topbar-date {
+        display: none;
+    }
+
+    .summary-container {
+        grid-template-columns: 1fr;
+        gap: 13px;
+    }
+
+    .summary-card {
+        padding: 19px;
+    }
+
+    .alert-section,
+    .stock-section {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+
+    th,
+    td {
+        padding: 12px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <span class="brand-icon">📦</span>
+        <span class="brand-name">SME Inventory</span>
+    </div>
+
+    <div class="menu-label">MAIN MENU</div>
+
+    <a href="home.html" class="nav-link">
+        <span class="nav-icon">⌂</span>
+        <span class="nav-text">Home</span>
+    </a>
+
+    <!-- PRODUCTS MENU -->
+
+    <div class="product-group" id="productGroup">
+
+        <button type="button"
+                class="nav-link product-toggle"
+                id="productToggle"
+                aria-expanded="false">
+
+            <span class="nav-icon">▤</span>
+            <span class="nav-text">Products</span>
+            <span class="product-arrow">⌄</span>
+
+        </button>
+
+        <div class="product-submenu">
+
+            <a href="products.html">Product Management</a>
+
+            <a href="add-product.html">Add Product</a>
+
+            <a href="product-categories.html">Product Categories</a>
+
+            <a href="product-movement-history.html">Product Movement History</a>
+
+        </div>
+
+    </div>
+
+    <a href="stock.html" class="nav-link active">
+        <span class="nav-icon">▣</span>
+        <span class="nav-text">Stock Management</span>
+    </a>
+
+    <a href="reports.html" class="nav-link">
+        <span class="nav-icon">▥</span>
+        <span class="nav-text">Reports</span>
+    </a>
+
+    <div class="sidebar-bottom">
+
+        <a href="settings.html" class="nav-link workspace-link" title="Workspace">
+            <span class="nav-icon">▦</span>
+            <span class="nav-text">Workspace</span>
+        </a>
+
+    </div>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main-content" id="mainContent">
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <button
+                class="toggle-button"
+                id="sidebarToggle"
+                type="button"
+                aria-label="Toggle sidebar"
+            >
+                ☰
+            </button>
+
+            <span class="topbar-title">Inventory Management</span>
+
+        </div>
+
+        <span class="topbar-date" id="currentDate"></span>
+
+    </header>
+
+
+    <!-- PAGE HEADING -->
+
+    <section class="page-heading">
+
+        <h1>Stock Management</h1>
+
+        <p class="page-description">
+            Monitor product quantities, identify low-stock products
+            and check current inventory availability.
+        </p>
+
+    </section>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <section class="summary-container">
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+                <span class="summary-label">Total Products</span>
+                <span class="summary-icon icon-blue">📦</span>
+            </div>
+
+            <h2 id="totalProducts">0</h2>
+
+        </div>
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+                <span class="summary-label">Low Stock Products</span>
+                <span class="summary-icon icon-orange">⚠️</span>
+            </div>
+
+            <h2 id="lowStockCount" class="low-number">0</h2>
+
+        </div>
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+                <span class="summary-label">Out of Stock Products</span>
+                <span class="summary-icon icon-red">✕</span>
+            </div>
+
+            <h2 id="outStockCount" class="out-number">0</h2>
+
+        </div>
+
+    </section>
+
+
+    <!-- LOW STOCK ALERTS -->
+
+    <section class="alert-section">
+
+        <div class="section-heading">
+            <h2>⚠ Low Stock Alerts</h2>
+        </div>
+
+        <p class="alert-description">
+            Products with five or fewer units remaining are displayed here.
+        </p>
+
+        <div id="alertList">
+            <p>Loading alerts...</p>
+        </div>
+
+    </section>
+
+
+    <!-- CURRENT STOCK -->
+
+    <section class="stock-section">
+
+        <h2>Current Stock Overview</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Stock Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="stockList"></tbody>
+
+            </table>
+
+        </div>
+
+        <p id="emptyMessage"></p>
+
+    </section>
+
+</main>
+
+
+<!-- FIREBASE -->
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged,
+    signOut,
+    reload
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+
+// HTML ELEMENTS
+
+const stockList = document.getElementById("stockList");
+const emptyMessage = document.getElementById("emptyMessage");
+
+const totalProductsElement =
+    document.getElementById("totalProducts");
+
+const lowStockCountElement =
+    document.getElementById("lowStockCount");
+
+const outStockCountElement =
+    document.getElementById("outStockCount");
+
+const alertList =
+    document.getElementById("alertList");
+
+
+// SIDEBAR TOGGLE
+
+const sidebar = document.getElementById("sidebar");
+const mainContent = document.getElementById("mainContent");
+
+document.getElementById("sidebarToggle").addEventListener("click", function() {
+
+    if (window.innerWidth <= 700) {
+        return;
+    }
+
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("expanded");
+
+});
+
+
+// PRODUCTS SUBMENU
+
+const productGroup = document.getElementById("productGroup");
+const productToggle = document.getElementById("productToggle");
+
+productToggle.addEventListener("click", function() {
+
+    if (sidebar.classList.contains("collapsed")) {
+        return;
+    }
+
+    productGroup.classList.toggle("open");
+
+    productToggle.setAttribute(
+        "aria-expanded",
+        productGroup.classList.contains("open")
+    );
+
+});
+
+
+// DISPLAY CURRENT DATE
+
+document.getElementById("currentDate").textContent =
+    new Date().toLocaleDateString("en-MY", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+
+// LOAD STOCK FROM FIRESTORE
+
+async function displayStock(user) {
+
+    try {
+
+        const productsCollection = collection(
+            db,
+            "users",
+            user.uid,
+            "products"
+        );
+
+        const snapshot = await getDocs(productsCollection);
+
+        stockList.innerHTML = "";
+        alertList.innerHTML = "";
+
+        let totalProducts = 0;
+        let lowStockCount = 0;
+        let outStockCount = 0;
+
+        const alertProducts = [];
+
+        if (snapshot.empty) {
+
+            emptyMessage.textContent =
+                "No products available yet.";
+
+            alertList.textContent =
+                "No products available to check.";
+
+            totalProductsElement.textContent = "0";
+            lowStockCountElement.textContent = "0";
+            outStockCountElement.textContent = "0";
+
+            return;
+
+        }
+
+        emptyMessage.textContent = "";
+
+
+        // PROCESS EACH PRODUCT
+
+        snapshot.forEach(function(productDocument) {
+
+            const product = productDocument.data();
+
+            const row = document.createElement("tr");
+
+            const nameCell = document.createElement("td");
+            const quantityCell = document.createElement("td");
+            const statusCell = document.createElement("td");
+
+            const quantity = Number(product.quantity) || 0;
+
+            const productName =
+                product.name || "Unnamed Product";
+
+            totalProducts++;
+
+            nameCell.textContent = productName;
+            quantityCell.textContent = quantity;
+
+
+            // CHECK STOCK STATUS
+
+            if (quantity === 0) {
+
+                statusCell.textContent = "Out of Stock";
+                statusCell.className = "out-stock";
+
+                outStockCount++;
+
+                alertProducts.push({
+                    name: productName,
+                    quantity: quantity,
+                    status: "Out of Stock"
+                });
+
+            } else if (quantity <= 5) {
+
+                statusCell.textContent = "Low Stock";
+                statusCell.className = "low-stock";
+
+                lowStockCount++;
+
+                alertProducts.push({
+                    name: productName,
+                    quantity: quantity,
+                    status: "Low Stock"
+                });
+
+            } else {
+
+                statusCell.textContent = "Available";
+                statusCell.className = "available";
+
+            }
+
+
+            row.appendChild(nameCell);
+            row.appendChild(quantityCell);
+            row.appendChild(statusCell);
+
+            stockList.appendChild(row);
+
+        });
+
+
+        // UPDATE SUMMARY CARDS
+
+        totalProductsElement.textContent = totalProducts;
+
+        lowStockCountElement.textContent = lowStockCount;
+
+        outStockCountElement.textContent = outStockCount;
+
+
+        // DISPLAY ALERTS
+
+        if (alertProducts.length === 0) {
+
+            const message = document.createElement("p");
+
+            message.textContent =
+                "✓ All products have sufficient stock.";
+
+            message.className = "all-good";
+
+            alertList.appendChild(message);
+
+        } else {
+
+            alertProducts.forEach(function(item) {
+
+                const alertItem =
+                    document.createElement("div");
+
+                alertItem.className = "alert-item";
+
+                const name = document.createElement("span");
+
+                name.className = "alert-name";
+
+                name.textContent =
+                    item.name + " — " + item.quantity + " units";
+
+                const status = document.createElement("span");
+
+                status.className =
+                    item.status === "Out of Stock"
+                        ? "alert-status alert-out"
+                        : "alert-status alert-low";
+
+                status.textContent = item.status;
+
+                alertItem.appendChild(name);
+                alertItem.appendChild(status);
+
+                alertList.appendChild(alertItem);
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.error("Error loading stock:", error);
+
+        emptyMessage.textContent =
+            "Unable to load stock: " + error.message;
+
+        alertList.textContent =
+            "Unable to load stock alerts.";
+
+    }
+
+}
+
+
+// AUTHENTICATION AND EMAIL VERIFICATION
+
+onAuthStateChanged(auth, async function(user) {
+
+    if (!user) {
+
+        window.location.replace("loging.html");
+        return;
+
+    }
+
+    try {
+
+        await reload(user);
+
+    } catch (error) {
+
+        console.error("Unable to refresh authentication:", error);
+
+    }
+
+    if (!user.emailVerified) {
+
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Sign out error:", error);
+        }
+
+        window.location.replace("loging.html");
+        return;
+
+    }
+
+    // Show the page even if stock data cannot load.
+    document.body.style.visibility = "visible";
+
+    await displayStock(user);
+
+});
+
+</script>
+
+<!-- AI ASSISTANT -->
+
+<script type="module" src="ai-assistant.js"></script>
+
+</body>
+</html>

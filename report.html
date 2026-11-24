@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Business Reports</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 30px;
+            color: #243447;
+        }
+
+        h1 {
+            color: #1e3a5f;
+        }
+
+        nav {
+            background-color: #1e3a5f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 25px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #93c5fd;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 150px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            background-color: white;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #1e3a5f;
+            color: white;
+        }
+
+        #downloadButton {
+            background-color: #1e3a5f;
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 25px;
+        }
+
+        #downloadButton:hover {
+            background-color: #315b85;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1e3a5f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="stock.html">Stock</a>
+        <a href="reports.html">Reports</a>
+    </nav>
+
+    <h1>Business Reports</h1>
+
+    <p>Here is an overview of your business inventory.</p>
+
+    <h2>Inventory Summary</h2>
+
+    <div class="summary-cards">
+
+        <div class="card">
+            <h3>Total Products</h3>
+            <h2 id="cardProducts">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Inventory Value</h3>
+            <h2 id="cardValue">RM 0.00</h2>
+        </div>
+
+        <div class="card">
+            <h3>Low Stock</h3>
+            <h2 id="cardLowStock">0</h2>
+        </div>
+
+    </div>
+
+    <h2>Detailed Report</h2>
+
+    <table>
+        <tr>
+            <th>Report</th>
+            <th>Total</th>
+        </tr>
+
+        <tr>
+            <td>Total Products</td>
+            <td id="totalProducts">0</td>
+        </tr>
+
+        <tr>
+            <td>Total Available Stock</td>
+            <td id="totalStock">0</td>
+        </tr>
+
+        <tr>
+            <td>Total Inventory Value (RM)</td>
+            <td id="reportTotalValue">0.00</td>
+        </tr>
+
+        <tr>
+            <td>Low Stock Items</td>
+            <td id="lowStock">0</td>
+        </tr>
+
+        <tr>
+            <td>Out of Stock Items</td>
+            <td id="outStock">0</td>
+        </tr>
+    </table>
+
+    <button type="button" id="downloadButton">
+        Download Report
+    </button>
+
+    <br>
+
+    <a class="back-link" href="home.html">Back to Home</a>
+
+    <script>
+
+        // Initialize report values
+        let products = [];
+        let totalProducts = 0;
+        let totalStock = 0;
+        let lowStock = 0;
+        let outStock = 0;
+        let totalValue = 0;
+
+        // Download CSV report
+        function downloadReport() {
+
+            let report = "Report,Total\n";
+
+            report += "Total Products," + totalProducts + "\n";
+            report += "Total Available Stock," + totalStock + "\n";
+            report += "Total Inventory Value,RM " +
+                totalValue.toFixed(2) + "\n";
+            report += "Low Stock Items," + lowStock + "\n";
+            report += "Out of Stock Items," + outStock + "\n";
+
+            let file = new Blob([report], {
+                type: "text/csv;charset=utf-8;"
+            });
+
+            let fileURL = URL.createObjectURL(file);
+
+            let link = document.createElement("a");
+
+            link.href = fileURL;
+            link.download = "Inventory_Report.csv";
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setTimeout(function() {
+                URL.revokeObjectURL(fileURL);
+            }, 1000);
+        }
+
+        // Connect button to download function
+        document.getElementById("downloadButton")
+            .addEventListener("click", downloadReport);
+
+        // Check login
+        if (sessionStorage.getItem("loggedIn") !== "true") {
+
+            alert("Please log in first!");
+
+            window.location.href = "loging.html";
+
+        } else {
+
+            // Read saved products
+            products = JSON.parse(
+                localStorage.getItem("products") || "[]"
+            );
+
+            totalProducts = products.length;
+
+            // Calculate totals
+            products.forEach(function(product) {
+
+                let quantity = Number(product.quantity) || 0;
+                let price = Number(product.price) || 0;
+
+                totalStock += quantity;
+                totalValue += price * quantity;
+
+                if (quantity === 0) {
+                    outStock++;
+                }
+                else if (quantity <= 5) {
+                    lowStock++;
+                }
+
+            });
+
+            // Update detailed report
+            document.getElementById("totalProducts").textContent =
+                totalProducts;
+
+            document.getElementById("totalStock").textContent =
+                totalStock;
+
+            document.getElementById("reportTotalValue").textContent =
+                totalValue.toFixed(2);
+
+            document.getElementById("lowStock").textContent =
+                lowStock;
+
+            document.getElementById("outStock").textContent =
+                outStock;
+
+            // Update summary cards
+            document.getElementById("cardProducts").textContent =
+                totalProducts;
+
+            document.getElementById("cardValue").textContent =
+                "RM " + totalValue.toFixed(2);
+
+            document.getElementById("cardLowStock").textContent =
+                lowStock;
+        }
+
+    </script>
+
+</body>
+</html>
